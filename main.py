@@ -6,6 +6,7 @@ from tkinter import messagebox as MessageBox
 from tablero import *
 from dominio import *
 from pygame.locals import *
+from variable import *
 
 GREY=(190, 190, 190)
 NEGRO=(100,100, 100)
@@ -20,33 +21,33 @@ COLS=6 # número de columnas del crucigrama
 LLENA='*' 
 VACIA='-'
 
-def variablesHorizontales():
+def variablesHorizontales(tablero):
     var = []
     for i in range(tablero.alto):
         tam = 0
         for j in range(tablero.ancho):
             tam = tam + 1
-            if tablero[i][j] == '*' or j == ancho:
-                var.append(Variable(tam , i  , j-(tam+1) , 'H'))
+            if tablero.getCelda(i,j) == '*' or j+1 == tablero.ancho:
+                print((tam , i  , j-(tam+1) , 'H'))
+                variable = Variable(tam , i  , j-(tam+1) , 'H')
+                var.append(variable)
                 tam = 0
+
+    return var
                 
 
-def variablesVerticales():
+def variablesVerticales(tablero):
     var = []
     for j in range(tablero.ancho):
         tam = 0
         for i in range(tablero.alto):
             tam = tam + 1
-            if tablero[i][j] == '*' or i == alto:
-                var.append(Variable(tam , i-(tam+1)  , j , 'V'))
+            if tablero.getCelda(i,j) == '*' or i+1 == tablero.alto:
+                print((tam , i-(tam+1)  , j , 'V'))
+                variable = Variable(tam , i-(tam+1)  , j , 'V')
+                var.append(variable)
                 tam = 0
-
-def FC(almacen , tablero):
-    varV = variablesVerticales()
-    varH = variablesHorizontales()
-
-    for i in varH:
-        print(i.tam)
+    return var
 
 #########################################################################
 # Detecta si se pulsa el botón de FC
