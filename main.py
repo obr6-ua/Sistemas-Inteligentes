@@ -20,6 +20,34 @@ COLS=6 # número de columnas del crucigrama
 LLENA='*' 
 VACIA='-'
 
+def variablesHorizontales():
+    var = []
+    for i in range(tablero.alto):
+        tam = 0
+        for j in range(tablero.ancho):
+            tam = tam + 1
+            if tablero[i][j] == '*' or j == ancho:
+                var.append(Variable(tam , i  , j-(tam+1) , 'H'))
+                tam = 0
+                
+
+def variablesVerticales():
+    var = []
+    for j in range(tablero.ancho):
+        tam = 0
+        for i in range(tablero.alto):
+            tam = tam + 1
+            if tablero[i][j] == '*' or i == alto:
+                var.append(Variable(tam , i-(tam+1)  , j , 'V'))
+                tam = 0
+
+def FC(almacen , tablero):
+    varV = variablesVerticales()
+    varH = variablesHorizontales()
+
+    for i in varH:
+        print(i.tam)
+
 #########################################################################
 # Detecta si se pulsa el botón de FC
 ######################################################################### 
@@ -140,7 +168,7 @@ def main():
                 pos=pygame.mouse.get_pos()                
                 if pulsaBotonFC(pos, anchoVentana, altoVentana):
                     print("FC")
-                    res=False #aquí llamar al forward checking
+                    res=FC(almacen , tablero) #aquí llamar al forward checking
                     if res==False:
                         MessageBox.showwarning("Alerta", "No hay solución")                                  
                 elif pulsaBotonAC3(pos, anchoVentana, altoVentana):                    
@@ -189,3 +217,5 @@ def main():
 if __name__=="__main__":
     main()
  
+#hay un dominio para cada variable. Cada variable serian las palabras que se pueden meter
+#El dominio de una variable , serán todas las palabras menos aquellas que ya estan completas 
