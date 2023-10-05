@@ -27,12 +27,14 @@ def variablesHorizontales(tablero):
         tam = 0
         for j in range(tablero.ancho):
             tam = tam + 1
-            if tablero.getCelda(i,j) == '*' or j+1 == tablero.ancho:
-                print((tam , i  , j-(tam+1) , 'H'))
+            if tablero.getCelda(i,j) == '*':
+                variable = Variable(tam - 1, i  , j-(tam+1) , 'H')
+                var.append(variable)
+                tam = 0
+            elif j+1 == tablero.ancho:
                 variable = Variable(tam , i  , j-(tam+1) , 'H')
                 var.append(variable)
                 tam = 0
-
     return var
                 
 
@@ -42,13 +44,45 @@ def variablesVerticales(tablero):
         tam = 0
         for i in range(tablero.alto):
             tam = tam + 1
-            if tablero.getCelda(i,j) == '*' or i+1 == tablero.alto:
-                print((tam , i-(tam+1)  , j , 'V'))
+            if tablero.getCelda(i,j) == '*': 
+                variable = Variable(tam -1 , i-(tam+1)  , j , 'V')
+                var.append(variable)
+                tam = 0
+            elif i+1 == tablero.alto:
                 variable = Variable(tam , i-(tam+1)  , j , 'V')
                 var.append(variable)
                 tam = 0
     return var
 
+def asignarDominios(variables, dominio):
+    asignaciones = {}
+    for variable in variables:
+        tam = variable.getTam()
+        dominio_variable = Dominio(tam)
+        for palabra in dominio.getLista():
+            if len(palabra) == tam:
+                dominio_variable.addPal(palabra)
+        asignaciones[variable] = dominio_variable
+    return asignaciones
+
+def FC(tablero , almacen):
+    varV=variablesVerticales(tablero)
+    varH=variablesHorizontales(tablero)
+
+    asignaciones_horizontales = asignarDominios(varH, almacen)
+    asignaciones_verticales = asignarDominios(varV, almacen)
+
+    print("Asignaciones para variables horizontales:")
+    for variable, dominio_variable in asignaciones_horizontales.items():
+        print(f"Variable: Tamaño={variable.getTam()}, Fila={variable.getFila()}, Columna={variable.getColumna()}, Dirección={variable.getDireccion()}")
+        print(f"Dominio: {dominio_variable.getLista()}")
+
+    print("\nAsignaciones para variables verticales:")
+    for variable, dominio_variable in asignaciones_verticales.items():
+        print(f"Variable: Tamaño={variable.getTam()}, Fila={variable.getFila()}, Columna={variable.getColumna()}, Dirección={variable.getDireccion()}")
+        print(f"Dominio: {dominio_variable.getLista()}")
+
+    
 #########################################################################
 # Detecta si se pulsa el botón de FC
 ######################################################################### 
@@ -169,7 +203,7 @@ def main():
                 pos=pygame.mouse.get_pos()                
                 if pulsaBotonFC(pos, anchoVentana, altoVentana):
                     print("FC")
-                    res=FC(almacen , tablero) #aquí llamar al forward checking
+                    res=FC(tablero , almacen) #aquí llamar al forward checking
                     if res==False:
                         MessageBox.showwarning("Alerta", "No hay solución")                                  
                 elif pulsaBotonAC3(pos, anchoVentana, altoVentana):                    

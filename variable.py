@@ -6,7 +6,7 @@ class Variable:
         self.fila = fila
         self.columna = columna
         self.direccion = direccion 
-        self.palabra = palabra
+        self.palabra = []
             
     def getTam(self):
         return self.tam
