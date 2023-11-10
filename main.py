@@ -437,7 +437,7 @@ def main():
                 pos=pygame.mouse.get_pos()                
                 if pulsaBotonFC(pos, anchoVentana, altoVentana):
                     print("FC")
-                    res=FC(almacen , tablero) #aquí llamar al forward checking
+                    res=FC(tablero , almacen) #aquí llamar al forward checking
                     if res==False:
                         MessageBox.showwarning("Alerta", "No hay solución")                                  
                 elif pulsaBotonAC3(pos, anchoVentana, altoVentana):
