@@ -31,7 +31,7 @@ class Variable:
     def getPalabra(self):
         return self.palabra
     
-    def intersecta_con(self, otra_variable, tablero):
+    def intersecta_con(self, otra_variable):
         # No se intersectan si están en la misma dirección
         if self.getDireccion() == otra_variable.getDireccion():
             return None

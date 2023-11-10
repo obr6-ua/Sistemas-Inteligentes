@@ -127,14 +127,14 @@ def actualizarDominios(variables, var_asignada, palabra_asignada):
                     if not var_vertical.dominio:
                         return False
                     
-def es_consistente(palabra, variable, asignacion, tablero):
+def es_consistente(palabra, variable, asignacion):
     # Verifica que la palabra no haya sido ya asignada a otra variable
     if palabra in asignacion.values():
         return False
 
     # Para cada intersección con otras variables asignadas, verificar que la letra coincida
     for var in asignacion:
-        interseccion = variable.intersecta_con(var, tablero)
+        interseccion = variable.intersecta_con(var)
         if interseccion:
             # Comprobamos que las letras en la intersección coincidan
             if palabra[interseccion[0]] != asignacion[var][interseccion[1]]:
@@ -249,70 +249,53 @@ def forward_checking(variables, asignacion, almacen, tablero, historial_dominios
     return False
 
            
-        
 def ac3(almacen, tablero):
-    variables = variablesHorizontales(tablero) + variablesVerticales(tablero)
+    # Inicializar variables y dominios
+    varH=variablesHorizontales(tablero)
+    varV=variablesVerticales(tablero)
+    variables = varH + varV
     dominiosBase(variables, almacen)
-    # Inicializar la cola con todos los arcos del problema
-    cola = inicializar_cola(variables, tablero)
+    historial_dominios = []
+    variablesSinAsignar = variables[:]
+    asignacion = {}
 
-    # Mientras haya arcos en la cola
-    while cola:
-        (var1, var2) = cola.pop(0)  # Sacamos un arco de la cola
+    # Función recursiva para intentar asignar palabras a las variables
+    def intentar_asignar():
+        if not variablesSinAsignar:
+            return True  # Todas las variables han sido asignadas
 
-        # Si revisamos y encontramos valores inconsistentes y los eliminamos
-        if revise(var1, var2, tablero):
-            # Si el dominio de var1 está vacío, no hay solución
-            if not var1.dominio:
-                return False
+        variable = variablesSinAsignar.pop(0)
+        guardarDominioAnterior(variables, historial_dominios)
 
-            # Añadir a la cola todos los arcos que apuntan a var1
-            for var3 in obtener_variables_que_intersectan(var1, variables, tablero):
-                cola.append((var3, var1))
+        for palabra in variable.dominio:
+            if es_consistente(palabra, variable, asignacion):
+                asignacion[variable] = palabra
+                actualizarDominios(variables, variable, palabra)
+                
+                if not dominio_vacio(variables):
+                    if intentar_asignar():
+                        return True
 
-    # Si llegamos aquí, todos los dominios son consistentes
-    return True
+                # Si no funciona, deshacemos los cambios y probamos con la siguiente palabra
+                asignacion.pop(variable, None)
+                restaurarDominioAnterior(variables, historial_dominios)
+                borrarPalabraAlmacen(variables, palabra, almacen)
 
-def revise(var1, var2, tablero):
-    # Esta función debe revisar el dominio de var1 y eliminar cualquier valor que no tenga soporte en var2
-    revised = False
-    for valor in var1.dominio[:]:  # Hacemos una copia para iterar mientras modificamos
-        if not tiene_soporte(valor, var2, tablero):
-            var1.dominio.remove(valor)
-            revised = True
-    return revised
+        # No se encontró una palabra válida, restaurar y devolver falso
+        variablesSinAsignar.insert(0, variable)
+        restaurarDominioAnterior(variables, historial_dominios)
+        return False
 
-def tiene_soporte(valor, var2, tablero):
-    # Esta función debe verificar si el valor de la variable1 tiene soporte en la variable2
-    for valor2 in var2.dominio:
-        if esCompatible2(valor, valor2, var2, tablero):
-            return True
-    return False
+    if intentar_asignar():
+        for var, palabra in asignacion.items():
+            introducir_palabra(var, palabra, tablero)
+        return tablero
+    else:
+        return "No se encontró una solución"
 
-def esCompatible2(valor1, valor2, var2, tablero):
-    # Esta función verifica si dos valores son compatibles en el punto de intersección
-    interseccion = var2.intersecta_con(var2, tablero)
-    if interseccion:
-        # Comprobamos que las letras en la intersección coincidan
-        if valor1[interseccion[0]].upper() == valor2[interseccion[1]].upper():
-            return True
-    return False
-
-def obtener_variables_que_intersectan(variable, variables, tablero):
-    # Esta función debe devolver una lista de variables que tienen restricciones con la variable dada
-    afectadas = []
-    for var in variables:
-        if var != variable and variable.intersecta_con(var, tablero):
-            afectadas.append(var)
-    return afectadas
-
-def inicializar_cola(variables, tablero):
-    cola = []
-    for var in variables:
-        afectadas = obtener_variables_que_intersectan(var, variables, tablero)
-        for afectada in afectadas:
-            cola.append((var, afectada))
-    return cola
+# Ejemplo de uso
+# Crear el tablero, almacen, y las variables aquí...
+# Luego llamar a resolver_crucigrama(variables, almacen, tablero)
 
         
 
