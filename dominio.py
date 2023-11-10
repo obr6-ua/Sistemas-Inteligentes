@@ -13,3 +13,4 @@ class Dominio:
     
     def getLista(self):
         return self.lista
+    
